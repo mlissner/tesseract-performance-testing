@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 import time
 
+import cStringIO
 from wand.color import Color
 from wand.image import Image
 
@@ -37,6 +38,16 @@ def convert_blob_to_text(blob):
         stderr=subprocess.STDOUT
     )
     return p.communicate(input=blob)[0]
+
+
+def convert_file_to_txt(path):
+    tesseract_command = ['tesseract', path, 'stdout', '-l', 'eng']
+    p = subprocess.Popen(
+        tesseract_command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+    return p.communicate()[0]
 
 
 def convert_to_pngs(command):
@@ -109,7 +120,13 @@ def subprocess_approach():
             avg(tess_cpu_timing),
             avg(tess_wall_timing),
         ))
-        print(u"                     Total was %s, %s" % (
+        print(u"         Total image time was: %s, %s" % (
+            sum(image_cpu_timing), sum(image_wall_timing)
+        ))
+        print(u"          Total tess time was: %s, %s" % (
+            sum(tess_cpu_timing), sum(tess_wall_timing)
+        ))
+        print(u"               Grand total was %s, %s" % (
             sum(image_cpu_timing) + sum(tess_cpu_timing),
             sum(image_wall_timing) + sum(tess_wall_timing),
         ))
@@ -145,7 +162,6 @@ def wand_approach():
             t1_cpu = time.clock()
             t1_wall = time.time()
             txt = convert_blob_to_text(img_bin)
-            #print(txt.decode('utf-8'))
             tess_cpu_timing.append(time.clock() - t1_cpu)
             tess_wall_timing.append(time.time() - t1_wall)
 
@@ -158,11 +174,73 @@ def wand_approach():
         avg(tess_cpu_timing),
         avg(tess_wall_timing),
     ))
-    print(u"                     Total was %s, %s" % (
+    print(u"         Total image time was: %s, %s" % (
+        sum(image_cpu_timing), sum(image_wall_timing)
+    ))
+    print(u"          Total tess time was: %s, %s" % (
+        sum(tess_cpu_timing), sum(tess_wall_timing)
+    ))
+    print(u"               Grand total was %s, %s" % (
         sum(image_cpu_timing) + sum(tess_cpu_timing),
         sum(image_wall_timing) + sum(tess_wall_timing),
     ))
 
 
-#subprocess_approach()
+def multipage_tiff_approach():
+    """Theory: Initializing Tesseract for every page takes time.
+    Hypothesis: Using a multi-page tiff will allow it only to be initialized
+    once, saving time.
+    """
+    image_cpu_timing = []
+    tess_cpu_timing = []
+    image_wall_timing = []
+    tess_wall_timing = []
+    for path in sorted(glob.glob(PATH)):
+        print("  Doing: %s" % path)
+        all_pages = Image(filename=path, resolution=300)
+        tiff_out = Image()
+        t1_cpu = time.clock()
+        t1_wall = time.time()
+        for i, img in enumerate(all_pages.sequence):
+            with Image(img) as img_out:
+                img_out.background_color = Color('white')
+                img_out.alpha_channel = 'remove'
+                img_out.depth = 4
+                img_out.type = "grayscale"
+                tiff_out.sequence.append(img_out)
+        tiff_bin = cStringIO.StringIO()
+        tiff_out.format = 'tiff'
+        tiff_out.save(file=tiff_bin)
+        image_cpu_timing.append(time.clock() - t1_cpu)
+        image_wall_timing.append(time.time() - t1_wall)
+
+        # Do Tesseract on the binary data
+        t1_cpu = time.clock()
+        t1_wall = time.time()
+        txt = convert_blob_to_text(tiff_bin.getvalue())
+        tess_cpu_timing.append(time.clock() - t1_cpu)
+        tess_wall_timing.append(time.time() - t1_wall)
+
+    print(u"  Sys, Real")
+    print(u"  Average image conversion was %s, %s" % (
+        avg(image_cpu_timing),
+        avg(image_wall_timing),
+    ))
+    print(u"   Average tess conversion was %s, %s" % (
+        avg(tess_cpu_timing),
+        avg(tess_wall_timing),
+    ))
+    print(u"         Total image time was: %s, %s" % (
+        sum(image_cpu_timing), sum(image_wall_timing)
+    ))
+    print(u"          Total tess time was: %s, %s" % (
+        sum(tess_cpu_timing), sum(tess_wall_timing)
+    ))
+    print(u"               Grand total was %s, %s" % (
+        sum(image_cpu_timing) + sum(tess_cpu_timing),
+        sum(image_wall_timing) + sum(tess_wall_timing),
+    ))
+
+subprocess_approach()
 wand_approach()
+multipage_tiff_approach()
