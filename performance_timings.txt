@@ -1,0 +1,60 @@
+Wand with small files (img_out.resolutio=150):
+  Average image conversion was 0.281650566667, 0.20175362428
+   Average tess conversion was 0.00670713333333, 4.82448906898
+                     Total was 8.650731, 150.787280798
+
+
+
+Wand with normal files (img_out.resolution=300):
+  Average image conversion was 0.245327866667, 0.163171307246
+   Average tess conversion was 0.00566933333333, 4.17211948236
+                     Total was 7.529916, 130.058723688
+
+  Average image conversion was  0.77274,   0.460467704137
+   Average tess conversion was  0.01029,   3.3246489048
+                     Total was 23.49092, 113.553498268
+
+  Average image conversion was 0.7881222, 0.479264648755
+   Average tess conversion was 0.0108817, 3.42371450265
+                     Total was 23.970117, 117.089374542
+
+
+
+Wand with single tiff files (resolution=300):
+    Average image conversion was 0.507405933333, 0.252884729703
+     Average tess conversion was 0.017873, 35.4883536498
+           Total image time was: 15.222178, 7.5865418911
+            Total tess time was: 0.053619, 106.465060949
+                 Grand total was 15.275797, 114.05160284
+
+Wand with single tiff files (resolution=150):
+  Average image conversion was 0.111607933333, 0.0388865629832
+   Average tess conversion was 0.00500333333333, 38.2380793095
+         Total image time was: 3.348238, 1.1665968895
+          Total tess time was: 0.01501, 114.714237928
+               Grand total was 3.363248, 115.880834818
+
+
+Wand with single tiff of pngs (resolution=300):
+  Average image conversion was 0.743041466667, 0.485463205973
+   Average tess conversion was 0.0105403333333, 34.6259293556
+         Total image time was: 22.291244, 14.5638961792
+          Total tess time was: 0.031621, 103.877788067
+               Grand total was 22.322865, 118.441684246
+
+Wand with in-memory multi-page tiff (resolution=300, StringIO):
+
+
+Classic approach:
+  Average image conversion was 0.000748,  13.1919492881
+   Average tess conversion was 0.007885,  37.2376720111
+                     Total was 0.0259,   151.288863897
+
+
+  Average image conversion was 0.000673,   7.2734773159
+   Average tess conversion was 0.008678,  39.152425607
+                     Total was 0.028056, 139.277708769
+
+  Average image conversion was 0.000617,  13.1116859913
+   Average tess conversion was 0.008332,  34.0318047206
+                     Total was 0.026849, 141.430472136
